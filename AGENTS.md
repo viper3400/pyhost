@@ -9,18 +9,18 @@ at its declared URL path. The shared plugin contract is defined in
 
 ## Plugin system
 
-- A plugin distribution exports a `Plugin` instance from the
-  `tool_host.plugins` entry-point group in its `pyproject.toml`.
-- A `Plugin` provides a unique, non-empty `id`, display metadata, an absolute
+- A plugin distribution exports an object implementing the documented plugin
+  fields from the `tool_host.plugins` entry-point group in its `pyproject.toml`.
+- A plugin object provides a unique, non-empty `id`, display metadata, an absolute
   non-root `path` without a trailing slash, and a zero-argument `app_factory`.
 - Optional plugin resources should be managed with the plugin's async
   `lifespan` factory.
 - The host discovers entry points in the active Python environment. For local
   workspace development, install all workspace packages with
   `uv sync --all-packages`.
-- Use `examples/hello_plugin` as the reference implementation. Keep plugin
-  code independent of host internals; plugins should depend on the public
-  `tool_host.plugins` contract.
+- Use `examples/hello_plugin` as the reference implementation. Plugins should
+  not need a runtime dependency on PyHost; the host validates the structural
+  contract when loading entry points.
 - Add or update tests in `tests/` when changing plugin discovery, validation,
   mounting, or host behavior.
 

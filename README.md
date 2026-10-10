@@ -29,14 +29,16 @@ uv run --package pyhost pyhost
 
 ## Plugin contract
 
-A plugin distribution exports one `Plugin` instance in the entry-point group
-`tool_host.plugins`. PyHost loads that object when starting, calls its
-`app_factory` once, and mounts the resulting ASGI application at `path`.
+A plugin distribution exports an object in the entry-point group
+`tool_host.plugins`. The object must provide the fields below. PyHost validates
+those fields when loading the entry point, calls `app_factory` once, and mounts
+the resulting ASGI application at `path`. Plugins do not need to depend on
+PyHost or import its classes.
 
 ```python
-from tool_host.plugins import Plugin
+from types import SimpleNamespace
 
-PLUGIN = Plugin(
+PLUGIN = SimpleNamespace(
     id="hello",
     name="Hello",
     description="A minimal example plugin",
@@ -63,9 +65,8 @@ Register the exported object in the plugin distribution's `pyproject.toml`:
 hello = "hello_plugin.plugin:PLUGIN"
 ```
 
-The `Plugin` class lives in this `pyhost` distribution. Plugins should depend
-on `pyhost` for that contract, but must not import host internals beyond
-`tool_host.plugins`.
+The `Plugin` dataclass remains available for convenience to plugins that choose
+to depend on PyHost, but it is not required by the contract.
 
 ## Example plugin
 

@@ -8,21 +8,36 @@ from typing import Iterable
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi.responses import HTMLResponse, Response
-from .plugins import ENTRY_POINT_GROUP, Plugin
+from .plugins import ENTRY_POINT_GROUP, PluginLike
 
 
-def discover_plugins() -> list[Plugin]:
-    discovered: list[Plugin] = []
+def _validate_plugin(plugin: object, name: str = "plugin") -> PluginLike:
+    required = ("id", "name", "description", "version", "path", "app_factory")
+    missing = [attribute for attribute in required if not hasattr(plugin, attribute)]
+    if missing:
+        raise TypeError(f"Plugin {name!r} is missing required attributes: {', '.join(missing)}")
+    if not all(isinstance(getattr(plugin, field), str) for field in required[:-1]):
+        raise TypeError(f"Plugin {name!r} metadata fields must be strings")
+    if not callable(plugin.app_factory):
+        raise TypeError(f"Plugin {name!r} app_factory must be callable")
+    lifespan = getattr(plugin, "lifespan", None)
+    if lifespan is not None and not callable(lifespan):
+        raise TypeError(f"Plugin {name!r} lifespan must be callable or None")
+    return plugin  # type: ignore[return-value]
+
+
+def discover_plugins() -> list[PluginLike]:
+    discovered: list[PluginLike] = []
     for point in entry_points(group=ENTRY_POINT_GROUP):
-        plugin = point.load()
-        if not isinstance(plugin, Plugin):
-            raise TypeError(f"Plugin entry point {point.name!r} must expose a Plugin instance")
-        discovered.append(plugin)
+        discovered.append(_validate_plugin(point.load(), point.name))
     return discovered
 
 
-def create_app(plugins: Iterable[Plugin] | None = None) -> FastAPI:
-    loaded_plugins = list(discover_plugins() if plugins is None else plugins)
+def create_app(plugins: Iterable[PluginLike] | None = None) -> FastAPI:
+    loaded_plugins = [
+        _validate_plugin(plugin, getattr(plugin, "id", "plugin"))
+        for plugin in (discover_plugins() if plugins is None else plugins)
+    ]
     ids: set[str] = set()
     paths: set[str] = set()
     for plugin in loaded_plugins:
@@ -49,8 +64,9 @@ def create_app(plugins: Iterable[Plugin] | None = None) -> FastAPI:
     async def lifespan(host: FastAPI):
         async with AsyncExitStack() as stack:
             for plugin, plugin_app in apps:
-                if plugin.lifespan:
-                    await stack.enter_async_context(plugin.lifespan(plugin_app))
+                lifespan_factory = getattr(plugin, "lifespan", None)
+                if lifespan_factory:
+                    await stack.enter_async_context(lifespan_factory(plugin_app))
             yield
 
     host = FastAPI(title="Tool Host", lifespan=lifespan)
