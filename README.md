@@ -7,12 +7,15 @@ FeedVanta or any particular plugin.
 
 ## Install and run
 
-Once published, add the host distribution and run it with:
+Install the desired PyHost release and run it with:
 
 ```sh
-uv add pyhost
+uv add "pyhost @ https://github.com/viper3400/pyhost/releases/download/pyhost-v0.1.0/pyhost-0.1.0-py3-none-any.whl"
 uv run pyhost --host 0.0.0.0 --port 8000
 ```
+
+PyHost does not bundle example or application plugins. Install the desired
+plugin distributions into the same environment as PyHost.
 
 The CLI loads `.env` from the current working directory by default. Set a
 different file with `--env-file /path/to/host.env`; variables already present
@@ -72,3 +75,9 @@ to depend on PyHost, but it is not required by the contract.
 
 See [`examples/hello_plugin`](examples/hello_plugin) for a minimal installable
 plugin and its complete entry-point declaration.
+
+## Releases
+
+Push a tag in the form `pyhost-v<version>` (for example,
+`pyhost-v0.1.0`) to run the package release workflow. It tests PyHost, builds
+and checks the wheel and source archive, then attaches them to a GitHub Release.

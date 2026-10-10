@@ -1,0 +1,55 @@
+name: Release PyHost
+
+on:
+  push:
+    tags:
+      - "pyhost-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Verify tag matches package version
+        run: |
+          uv run python - <<'PY'
+          import os
+          import pathlib
+          import tomllib
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+          expected = f"pyhost-v{version}"
+          if tag != expected:
+              raise SystemExit(f"Tag {tag!r} does not match package version; expected {expected!r}.")
+          PY
+
+      - name: Run tests
+        run: uv run --extra test pytest
+
+      - name: Build distributions
+        run: uv build --package pyhost
+
+      - name: Check distributions
+        run: uvx twine check dist/*.whl dist/*.tar.gz
+
+      - name: Publish distributions on GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
+          --title "$GITHUB_REF_NAME" dist/*

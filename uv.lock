@@ -358,7 +358,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
-    { name = "pyhost-hello-plugin" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -372,7 +371,6 @@ test = [
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "httpx", marker = "extra == 'test'", specifier = ">=0.27" },
-    { name = "pyhost-hello-plugin", editable = "examples/hello_plugin" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8,<9" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30,<1" },
 ]
