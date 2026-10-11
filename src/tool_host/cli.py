@@ -11,10 +11,10 @@ def main() -> None:
     parser.add_argument("--reload", action="store_true")
     parser.add_argument(
         "--forwarded-allow-ips",
-        default=os.getenv("PYHOST_FORWARDED_ALLOW_IPS", "127.0.0.1"),
+        default=os.getenv("PYHOST_FORWARDED_ALLOW_IPS", "*"),
         help=(
             "Comma-separated proxy IPs/networks allowed to set forwarded headers "
-            "(default: PYHOST_FORWARDED_ALLOW_IPS or 127.0.0.1)"
+            "(default: PYHOST_FORWARDED_ALLOW_IPS or *)"
         ),
     )
     parser.add_argument(

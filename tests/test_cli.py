@@ -11,7 +11,7 @@ def test_cli_passes_default_env_file(monkeypatch):
     cli.main()
 
     assert calls[0][1]["env_file"] == ".env"
-    assert calls[0][1]["forwarded_allow_ips"] == "127.0.0.1"
+    assert calls[0][1]["forwarded_allow_ips"] == "*"
 
 
 def test_cli_accepts_custom_env_file(monkeypatch):
