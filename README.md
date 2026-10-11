@@ -10,9 +10,14 @@ FeedVanta or any particular plugin.
 Install the desired PyHost release and run it with:
 
 ```sh
-uv add "pyhost @ https://github.com/viper3400/pyhost/releases/download/pyhost-v0.1.0/pyhost-0.1.0-py3-none-any.whl"
+uv add "pyhost @ https://github.com/viper3400/pyhost/releases/download/pyhost-v0.1.1/pyhost-0.1.1-py3-none-any.whl"
 uv run pyhost --host 0.0.0.0 --port 8000
 ```
+
+When running behind a reverse proxy, configure the proxy IPs or networks whose
+`X-Forwarded-*` headers should be trusted with `--forwarded-allow-ips` or
+`PYHOST_FORWARDED_ALLOW_IPS`. The default is `127.0.0.1`; only trust addresses
+that cannot be reached by untrusted clients.
 
 PyHost does not bundle example or application plugins. Install the desired
 plugin distributions into the same environment as PyHost.
@@ -79,5 +84,5 @@ plugin and its complete entry-point declaration.
 ## Releases
 
 Push a tag in the form `pyhost-v<version>` (for example,
-`pyhost-v0.1.0`) to run the package release workflow. It tests PyHost, builds
+`pyhost-v0.1.1`) to run the package release workflow. It tests PyHost, builds
 and checks the wheel and source archive, then attaches them to a GitHub Release.
