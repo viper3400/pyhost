@@ -16,9 +16,8 @@ uv run pyhost --host 0.0.0.0 --port 8000
 
 When running behind a reverse proxy, configure the proxy IPs or networks whose
 `X-Forwarded-*` headers should be trusted with `--forwarded-allow-ips` or
-`PYHOST_FORWARDED_ALLOW_IPS`. The default is `*` (trust all sources); set this
-to specific proxy IPs or networks when PyHost can also be reached by untrusted
-clients.
+`PYHOST_FORWARDED_ALLOW_IPS`. The default is `127.0.0.1`; only trust addresses
+that cannot be reached by untrusted clients.
 
 PyHost does not bundle example or application plugins. Install the desired
 plugin distributions into the same environment as PyHost.
