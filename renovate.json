@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["uv", "github-actions"],
+  "enabledManagers": ["pep621", "github-actions"],
   "dependencyDashboard": true,
   "lockFileMaintenance": {
     "enabled": true
@@ -9,7 +9,7 @@
   "packageRules": [
     {
       "groupName": "Python dependencies",
-      "matchManagers": ["uv"]
+      "matchManagers": ["pep621"]
     },
     {
       "groupName": "GitHub Actions",
