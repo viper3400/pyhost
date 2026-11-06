@@ -1,7 +1,10 @@
-name: Release PyHost
+name: PyHost CI and Release
 
 on:
+  pull_request:
   push:
+    branches:
+      - main
     tags:
       - "pyhost-v*"
 
@@ -9,7 +12,33 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Run tests
+        run: uv run --extra test pytest
+
+      - name: Build distributions
+        run: uv build --package pyhost
+
+      - name: Check distributions
+        run: uvx twine check dist/*.whl dist/*.tar.gz
+
   release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
